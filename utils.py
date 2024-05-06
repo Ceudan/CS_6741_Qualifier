@@ -53,9 +53,9 @@ def load_queries_and_records(sql_path: str, record_path: str):
         with open(record_path, 'rb') as f:
             records, error_msgs = pickle.load(f)
     else:
-        records, error_msgs = compute_records(processed_qs)
+        records, error_msgs = compute_records(read_qs)
 
-    return processed_qs, records, error_msgs
+    return read_qs, records, error_msgs
 
 def save_queries_and_records(sql_queries: List[str], sql_path: str, record_path: str):
     '''
