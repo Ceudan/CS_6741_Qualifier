@@ -1,0 +1,2 @@
+Training Scripts
+python train_t5.py --learning_rate 0.001 --scheduler_type none --max_n_epochs 5 --experiment_name test --finetune

@@ -4,6 +4,7 @@ import torch
 
 import transformers
 from transformers import T5ForConditionalGeneration, T5Config
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
 import wandb
 
@@ -20,7 +21,13 @@ def initialize_model(args):
     or training a T5 model initialized with the 'google-t5/t5-small' config
     from scratch.
     '''
-    pass
+    if args.finetune:
+        model = T5ForConditionalGeneration.from_pretrained("google-t5/t5-small")
+    else:
+        config = T5Config()
+        model = model = T5ForConditionalGeneration(config)
+
+    return model
 
 def mkdir(dirpath):
     if not os.path.exists(dirpath):

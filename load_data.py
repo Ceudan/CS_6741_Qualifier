@@ -26,16 +26,44 @@ class T5Dataset(Dataset):
               T5Tokenizer should serve that purpose.
             * Class behavior should be different on the test set.
         '''
-        # TODO
+        filepath = data_folder + "/" + split + ".nl"
+        with open(filepath, 'r', encoding='utf-8') as file:
+            # Read all lines from the file and store them in a list
+            self.input_lines = file.readlines()
+            self.input_lines = [line.strip() for line in self.input_lines]
+        if(split!="test"):
+            filepath = data_folder + "/" + split + ".sql"
+            with open(filepath, 'r', encoding='utf-8') as file:
+                # Read all lines from the file and store them in a list
+                self.target_lines = file.readlines()
+                self.target_lines = [line.strip() for line in self.target_lines]
+        else:
+            self.target_lines = None
+
+        tokenizer = T5TokenizerFast.from_pretrained("google-t5/t5-small")
+        self.process_data(data_folder,split,tokenizer)
 
     def process_data(self, data_folder, split, tokenizer):
-        # TODO
+        max_input_length = 256
+        max_target_length = 256
+
+        encoding = tokenizer(self.input_lines, padding = "longest", max_length = max_input_length, truncation=True,return_tensors="pt")
+        self.input_ids, self.input_attention_mask = encoding.input_ids, encoding.attention_mask
+        
+        if(self.target_lines!=None):
+            target_encoding = tokenizer(self.target_lines, padding = "longest", max_length = max_target_length, truncation=True,return_tensors="pt")
+            self.target_ids = target_encoding.input_ids
+            # replace padding token id's of the labels by -100 so it's ignored by the loss
+            self.target_ids[self.target_ids == tokenizer.pad_token_id] = -100
+        else:
+            self.target_ids = None
+        
     
     def __len__(self):
-        # TODO
+        return len(self.input_ids)
 
     def __getitem__(self, idx):
-        # TODO
+        return self.input_ids[idx]
 
 def normal_collate_fn(batch):
     '''
@@ -53,6 +81,7 @@ def normal_collate_fn(batch):
         * decoder_targets: The target tokens with which to train the decoder (the tokens following each decoder input)
         * initial_decoder_inputs: The very first input token to be decoder (only to be used in evaluation)
     '''
+    pass
     # TODO
     return [], [], [], [], []
 
@@ -97,4 +126,10 @@ def load_lines(path):
 
 def load_prompting_data(data_folder):
     # TODO
+    train_x = 0
+    train_y = 0
+    dev_x = 0
+    dev_y = 0
+    test_x = 0 
+
     return train_x, train_y, dev_x, dev_y, test_x
